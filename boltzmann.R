@@ -1,7 +1,7 @@
 #retorna el dataset con los datos iniciales 
-init_particles = function(sx,sy){
-  particles = data.frame(c(seq(1,n_particles,by=1)),sx, sy)
-  names(particles) <- c('particle','Sx', 'Sy')
+init_particles = function(time,sx,sy){
+  particles = data.frame(time, c(seq(1,n_particles,by=1)), sx, sy)
+  names(particles) <- c('time', 'particle','Sx', 'Sy')
   return(particles)
 }
 
@@ -41,30 +41,19 @@ dt = 0.1
 
 forward = function(dt, time_max, particles){
   time = 0
-  n_steps <- 0
   pos = array()
     while(time <= time_max){
       time = time + dt  
       sx <- sx + vx*dt
       sy <- sy + vy*dt
-      n_steps <- n_steps + 1
-      particles <- rbind(particles,init_particles(sx, sy))
+      particles <- rbind(particles,init_particles(rep(time, n_particles), sx, sy))
     }
   particles = particles[order(particles$particle), ]
   return (particles)
 } 
 
-particles = init_particles(sx,sy)
+particles = init_particles(rep(0, n_particles), sx,sy)
 speeds = init_speeds(vx,vy)
-
 particles <- forward(dt,time_max,particles)
 
 
-ggplot(particles, aes(x=unlist(particles["Sx"]),y=unlist(particles["Sy"])))+ 
-  geom_point() +
-  scale_y_continuous(expand = c(0,0)) + scale_x_continuous(expand = c(0,0))+
-  # gganimate specific bits:
-  labs(title = 'Year: {frame_time}', x = 'GDP per capita', y = 'life expectancy') +
-  transition_time(particles['time']) +
-  ease_aes('linear')
-#forward(dt, time_max)
