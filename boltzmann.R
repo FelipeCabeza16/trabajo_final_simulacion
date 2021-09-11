@@ -56,4 +56,15 @@ particles = init_particles(rep(0, n_particles), sx,sy)
 speeds = init_speeds(vx,vy)
 particles <- forward(dt,time_max,particles)
 
-
+library(gifski)
+library(png)
+anim <- ggplot(particles, aes(x=unlist(particles["Sx"]),y=unlist(particles["Sy"])))+ 
+  geom_point(stroke=1) +
+  scale_y_continuous(expand = c(0,0)) + scale_x_continuous(expand = c(0,0))+
+  labs(title = 'Time: {frame_time}', x = 'X', y = 'Y')+
+  transition_time(unlist(particles["time"])) 
+# gganimate specific bits:
+#labs(title = 'Year: {frame_time}', x = 'GDP per capita', y = 'life expectancy') +
+animate(anim, height = 500, width = 500, fps = 30, duration = 10,
+        end_pause = 60, res = 100 ,renderer = gifski_renderer())
+anim_save("graph.gif")
