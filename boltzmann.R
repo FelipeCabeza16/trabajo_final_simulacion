@@ -32,18 +32,22 @@ library(png)
 
 #inicializar los valores 
 
-n_particles = 100
+n_particles = 1000
 
-#Atomo de Hidr√≥geno 
+#Atomo de Hidr√≥geno
+escala <- 1e7
 #Se multiplica por un factor 1x10^7 por la escala de la simulaciÛn
-r = 120e-12*1e7
+r = 120e-12*escala
 m = 1e-24
+
+M = 1.00784e-6
+constR = 8.314472e-3
 
 #TamaÒo de la caja n*n
 tam_box = 1
 
 #Temperatura constante
-T = 300
+Temp = 300
 FPS = 30
 dt = 1/FPS
 
@@ -54,18 +58,19 @@ sy = runif(n_particles,0,tam_box)
 
 
 #Velocidad m√°xima
-v_max = 1.5
+v_max = sqrt((3*constR*Temp)/M) * r
 
 #Generar de manera aleatorÌa las velocidades iniciales
 thetha = runif(n_particles) * 2 * pi
-vx = v_max * cos(thetha)
-vy = v_max * sin(thetha)
+v_real = runif(n_particles)
+vx = v_max * cos(thetha) * v_real
+vy = v_max * sin(thetha) * v_real
 
 
 #Tiempo m·ximo en seg
 time_max = 5
 #Diferencial de tiempo 
-dt = 0.1
+dt = 0.01
 
 
 #Par·metros:
@@ -85,7 +90,7 @@ forward = function(dt, time_max, particles){
       for (i in 1:length(sx)){
         for(j in 1:length(sx)){
           # Si dos partÌculas diferentes se encuentran en el radio una de otra
-          if ((abs(sx[j]-sx[i]) <= 4*r) && (abs(sy[j]-sy[i]) <= 40*r) && j!=i){
+          if ((abs(sx[j]-sx[i]) <= 2*r) && (abs(sy[j]-sy[i]) <= 2*r) && j!=i){
             print("Choque")
             
             # Se almacenan las posiciones en variables auxiliares
@@ -98,11 +103,15 @@ forward = function(dt, time_max, particles){
             
             # Se asume un choque perfectamente el·stico
             # por tanto se intecambian las velocidades
-            vx[i] = vx[j]
-            vy[i] = vy[j]
+            vcmx = (vx[i] + vx[j])/2
+            vcmy = (vy[i] + vy[j])/2
             
-            vx[j] = auxX
-            vy[j] = auxY
+            vx[i] = vx[i] - vcmx
+            vy[i] = vy[i] - vcmy
+            
+            
+            vx[j] = vx[j] - vcmx
+            vy[j] = vy[j] - vcmy
             
             # Se regresa mueven las partÌculas de forma que no queden superpuestas
             # Se realiza la operaciÛn vx[i]/abs(vx[i]) con el fin de calcular la direcciÛn del movimiento
@@ -140,7 +149,7 @@ forward = function(dt, time_max, particles){
     }
   
   #Se ordena la partÌcula en base a un identificador
-  particles = particles[order(particles$particle), ]
+  #particles = particles[order(particles$particle), ]
   return (particles)
 } 
 
@@ -150,15 +159,25 @@ particles <- forward(dt,time_max,particles)
 
 # Se realiza la gr·fica con los datos del dataframe, utilizando cada intervalo de tiempo
 anim <- ggplot(particles, aes(x=unlist(particles["Sx"]),y=unlist(particles["Sy"])))+ 
-  geom_point(aes(colour = factor(particle),size = r/100),alpha = 0.7, show.legend = F) + theme_bw()+
+  geom_point(aes(colour = factor(particle)),size=r,alpha = 0.7, show.legend = F) + theme_bw()+
   scale_y_continuous(expand = c(0,0)) + scale_x_continuous(expand = c(0,0))+
   labs(title = 'Time: {frame_time}', x = 'X', y = 'Y')+
   transition_time(unlist(particles["time"])) 
 # Se generan n im·genes correspondientes a los movimientos
 
 # A partir de estas im·genes se genera la animaciÛn
-animate(anim, height = 500, width = 600, fps = 30, duration = 10,
+animate(anim, height = 500, width = 600, fps = 30, duration = 20,
         end_pause = 60, res = 100 ,renderer = gifski_renderer())
 
 # Se exporta la animaciÛn cÛmo un gif
 anim_save("graph.gif")
+
+totalvel <- sqrt((particles$Vx^2)+(particles$Vy^2))*100
+
+library("MASS")
+M1 = 1.00784e-24
+truehist(totalvel,nbins = 100)
+x_grafica <- seq(min(totalvel),max(totalvel),by=0.1)
+y_grafica <- (4*pi*(x_grafica^2))*((M1/(2*pi*k_botlz*Temp))^1.5)*(exp((-M1*(x_grafica^2))/(2*k_botlz*T)))
+lines(x_grafica,y_grafica,type="l",col="red")
+print(totalvel)
