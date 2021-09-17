@@ -35,9 +35,11 @@ library(png)
 n_particles = 1000
 
 #Atomo de Hidr√≥geno
-escala <- 1e7
+escalaR <- 1e7
+escalaT <- 
+
 #Se multiplica por un factor 1x10^7 por la escala de la simulaciÛn
-r = 120e-12*escala
+r = 120e-12*escalaR
 m = 1e-24
 
 M = 1.00784e-6
@@ -45,6 +47,7 @@ constR = 8.314472e-3
 
 #TamaÒo de la caja n*n
 tam_box = 1
+
 
 #Temperatura constante
 Temp = 300
@@ -58,13 +61,13 @@ sy = runif(n_particles,0,tam_box)
 
 
 #Velocidad m√°xima
-v_max = sqrt((3*constR*Temp)/M) * r
+v_max = sqrt((3*constR*Temp)/M) / escalaR
 
 #Generar de manera aleatorÌa las velocidades iniciales
-thetha = runif(n_particles) * 2 * pi
+thetha = runif(n_particles) * 2  * pi
 v_real = runif(n_particles)
-vx = v_max * cos(thetha) * v_real
-vy = v_max * sin(thetha) * v_real
+vx = cos(thetha) * v_real * v_max
+vy = sin(thetha) * v_real * v_max
 
 
 #Tiempo m·ximo en seg
@@ -93,6 +96,14 @@ forward = function(dt, time_max, particles){
           if ((abs(sx[j]-sx[i]) <= 2*r) && (abs(sy[j]-sy[i]) <= 2*r) && j!=i){
             print("Choque")
             
+            rel_posx = sx[i] - sx[j]
+            rel_posy = sy[i] - sy[j]
+            
+            rel_velx = vx[i] - vx[j]
+            rel_vely = vy[i] - vy[j]
+            
+            v_rel = rel_posx*rel_velx + rel_posy*rel_vely
+            r_rel = (rel_posx^2)+(rel_posy^2)
             # Se almacenan las posiciones en variables auxiliares
             auxPosY = sy[i]
             auxPosX = sx[i]  
@@ -106,12 +117,16 @@ forward = function(dt, time_max, particles){
             vcmx = (vx[i] + vx[j])/2
             vcmy = (vy[i] + vy[j])/2
             
-            vx[i] = vx[i] - vcmx
-            vy[i] = vy[i] - vcmy
+            vx[i] = vx[i] - (v_rel/r_rel)*(sx[i]-sx[j])
+            vy[i] = vy[i] - (v_rel/r_rel)*(sy[i]-sy[j])
+            #vx[i] = vx[j]
+            #vy[i] = vy[j]
             
+            vx[j] = vx[j] - (-v_rel/-r_rel)*(sx[j]-sx[i])
+            vy[j] = vy[j] - (-v_rel/-r_rel)*(sy[j]-sy[i])
             
-            vx[j] = vx[j] - vcmx
-            vy[j] = vy[j] - vcmy
+            #vx[j] = auxX
+            #vy[j] = auxY
             
             # Se regresa mueven las partÌculas de forma que no queden superpuestas
             # Se realiza la operaciÛn vx[i]/abs(vx[i]) con el fin de calcular la direcciÛn del movimiento
@@ -172,7 +187,7 @@ animate(anim, height = 500, width = 600, fps = 30, duration = 20,
 # Se exporta la animaciÛn cÛmo un gif
 anim_save("graph.gif")
 
-totalvel <- sqrt((particles$Vx^2)+(particles$Vy^2))*100
+totalvel <- sqrt((particles$Vx^2)+(particles$Vy^2))*escalaR
 
 library("MASS")
 M1 = 1.00784e-24
