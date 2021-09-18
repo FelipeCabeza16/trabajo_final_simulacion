@@ -30,20 +30,22 @@ library(gganimate)
 library(gifski)
 library(png)
 
+#VARIOS ESCENARIOS
+
 #inicializar los valores 
 
 n_particles = 1000
 
 #Atomo de Hidr√≥geno
 escalaR <- 1e7
-escalaT <- 
+escalaT <- 1e9
 
 #Se multiplica por un factor 1x10^7 por la escala de la simulaciÛn
 r = 120e-12*escalaR
 m = 1e-24
 
-M = 1.00784e-6
-constR = 8.314472e-3
+M = 0.002016
+constR = 8.314472
 
 #TamaÒo de la caja n*n
 tam_box = 1
@@ -61,11 +63,11 @@ sy = runif(n_particles,0,tam_box)
 
 
 #Velocidad m√°xima
-v_max = sqrt((3*constR*Temp)/M) / escalaR
+v_max = sqrt((3*constR*Temp)/M)*(escalaR/escalaT)
 
 #Generar de manera aleatorÌa las velocidades iniciales
 thetha = runif(n_particles) * 2  * pi
-v_real = runif(n_particles)
+v_real = runif(n_particles) 
 vx = cos(thetha) * v_real * v_max
 vy = sin(thetha) * v_real * v_max
 
@@ -187,12 +189,14 @@ animate(anim, height = 500, width = 600, fps = 30, duration = 20,
 # Se exporta la animaciÛn cÛmo un gif
 anim_save("graph.gif")
 
-totalvel <- sqrt((particles$Vx^2)+(particles$Vy^2))*escalaR
+totalvel <- sqrt((particles$Vx^2)+(particles$Vy^2))
 
 library("MASS")
-M1 = 1.00784e-24
+M1 = 0.002016
+k_botlz <- 1.380649e-23
+#k_botlz <- 8.617333262e-5
 truehist(totalvel,nbins = 100)
 x_grafica <- seq(min(totalvel),max(totalvel),by=0.1)
-y_grafica <- (4*pi*(x_grafica^2))*((M1/(2*pi*k_botlz*Temp))^1.5)*(exp((-M1*(x_grafica^2))/(2*k_botlz*T)))
-lines(x_grafica,y_grafica,type="l",col="red")
+y_grafica <- (4*pi*(x_grafica^2))*((m/(2*pi*k_botlz*Temp))^1.5)*(exp((-m*(x_grafica^2))/(2*k_botlz*T)))*2000
+plot(x_grafica,y_grafica,type="l",col="red")
 print(totalvel)
