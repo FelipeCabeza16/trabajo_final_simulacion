@@ -1,19 +1,19 @@
-#Parámetros:
+#Parï¿½metros:
 #           time -> Vector de intervalos de tiempo
 #           sx -> Vector de posiciones en x
 #           sy -> Vector de posiciones en y
 #           vx -> Vector de velocidades en x
 #           vy -> Vector de velocidades en y
 #Return:
-#           particles -> dataframe de partículas con los datos ingresados como parámetro,
-#                        con un identificador único para cada partícula
+#           particles -> dataframe de partï¿½culas con los datos ingresados como parï¿½metro,
+#                        con un identificador ï¿½nico para cada partï¿½cula
 init_particles = function(time,sx,sy,vx,vy){
   particles = data.frame(time, c(seq(1,n_particles,by=1)), sx, sy,vx,vy)
   names(particles) <- c('time', 'particle','Sx', 'Sy','Vx','Vy')
   return(particles)
 }
 
-#Parámetros: 
+#Parï¿½metros: 
 #           vx -> Vector de velocidades en x
 #           vy -> Vector de velocidades en y
 #Return:
@@ -34,57 +34,60 @@ library(png)
 
 #inicializar los valores 
 
-n_particles = 1000
+n_particles <- 1000
 
 #Atomo de HidrÃ³geno
 escalaR <- 1e7
 escalaT <- 1e9
 
-#Se multiplica por un factor 1x10^7 por la escala de la simulación
-r = 120e-12*escalaR
-m = 1e-24
+#Se multiplica por un factor 1x10^7 por la escala de la simulaciï¿½n
 
-M = 0.002016
-constR = 8.314472
+r <- 120e-12*escalaR
 
-#Tamaño de la caja n*n
-tam_box = 1
+mu <- 1.660e-24
+atomic_mass <- 1.00784
+m <- mu*atomic_mass
+constR <- 8.314472
+k_botlz <- 1.380649e-23
 
+#Tamaï¿½o de la caja n*n
+tam_box <- 1
 
 #Temperatura constante
-Temp = 300
-FPS = 30
-dt = 1/FPS
+Temp <- 273.15
+FPS <- 30
+dt <- 1/FPS
 
 
-#Generar de manera aleatoría las posiciones iniciales
-sx = runif(n_particles,0,tam_box)
-sy = runif(n_particles,0,tam_box)
+#Generar de manera aleatorï¿½a las posiciones iniciales
+sx <- runif(n_particles,0,tam_box)
+sy <- runif(n_particles,0,tam_box)
 
 
 #Velocidad mÃ¡xima
-v_max = sqrt((3*constR*Temp)/M)*(escalaR/escalaT)
+v_max <-  sqrt(  2*k_botlz*Temp / m  )*(escalaR/escalaT)
 
-#Generar de manera aleatoría las velocidades iniciales
-thetha = runif(n_particles) * 2  * pi
-v_real = runif(n_particles) 
-vx = cos(thetha) * v_real * v_max
-vy = sin(thetha) * v_real * v_max
+#Generar de manera aleatorï¿½a las velocidades iniciales
+thetha <- runif(n_particles) * 2  * pi
+v_real <- abs( rnorm(n_particles, mean=v_max) )
+
+vx <- cos(thetha) * v_real 
+vy <- sin(thetha) * v_real
 
 
-#Tiempo máximo en seg
-time_max = 1
+#Tiempo mï¿½ximo en seg
+time_max = 10
 #Diferencial de tiempo 
 dt = 0.01
 
 
-#Parámetros:
+#Parï¿½metros:
 #           dt -> Double: Diferencial de tiempo
-#           time_max -> Tiempo máximo
-#           particles -> dataframe con información de partículas
+#           time_max -> Tiempo mï¿½ximo
+#           particles -> dataframe con informaciï¿½n de partï¿½culas
 #Return:
-#           particles -> dataframe de partículas con los datos después de realizar
-#                        interacciones, ordenado por partícula
+#           particles -> dataframe de partï¿½culas con los datos despuï¿½s de realizar
+#                        interacciones, ordenado por partï¿½cula
 box_n_n = function(dt, time_max, particles){
   time = 0
     while(time <= time_max){
@@ -93,7 +96,7 @@ box_n_n = function(dt, time_max, particles){
       sy <- sy + vy*dt
       for (i in 1:length(sx)){
         for(j in 1:length(sx)){
-          # Si dos partículas diferentes se encuentran en el radio una de otra
+          # Si dos partï¿½culas diferentes se encuentran en el radio una de otra
           if ((abs(sx[j]-sx[i]) <= 2*r) && (abs(sy[j]-sy[i]) <= 2*r) && j!=i){
             print("Choque")
             
@@ -113,7 +116,7 @@ box_n_n = function(dt, time_max, particles){
             auxX = vx[i]
             auxY = vy[i]
             
-            # Se asume un choque perfectamente elástico
+            # Se asume un choque perfectamente elï¿½stico
             # por tanto se intecambian las velocidades
             vcmx = (vx[i] + vx[j])/2
             vcmy = (vy[i] + vy[j])/2
@@ -129,8 +132,8 @@ box_n_n = function(dt, time_max, particles){
             #vx[j] = auxX
             #vy[j] = auxY
             
-            # Se regresa mueven las partículas de forma que no queden superpuestas
-            # Se realiza la operación vx[i]/abs(vx[i]) con el fin de calcular la dirección del movimiento
+            # Se regresa mueven las partï¿½culas de forma que no queden superpuestas
+            # Se realiza la operaciï¿½n vx[i]/abs(vx[i]) con el fin de calcular la direcciï¿½n del movimiento
             sx[i] = sx[j]  + 2*r*(vx[i]/abs(vx[i]))
             sx[j] = auxPosX + 2*r*(vx[j]/abs(vx[j]))
             
@@ -139,9 +142,9 @@ box_n_n = function(dt, time_max, particles){
           }
         }
         
-        # Se buscan partículas que se encuentren en uno de los bordes
-        # En caso de encontrarse en alguno de ellos, se invierte la dirección de su movimiento
-        # (cambiando el signo a la velocidad), y se pone en una posición en la que no se
+        # Se buscan partï¿½culas que se encuentren en uno de los bordes
+        # En caso de encontrarse en alguno de ellos, se invierte la direcciï¿½n de su movimiento
+        # (cambiando el signo a la velocidad), y se pone en una posiciï¿½n en la que no se
         # superponga
         if(sx[i] >= tam_box-(2*r)){
           sx[i] = tam_box - (2*r) - abs(tam_box - sx[i]) 
@@ -160,11 +163,11 @@ box_n_n = function(dt, time_max, particles){
         }
       }
       
-      #Se agregan nuevas filas al dataframe de partículas
+      #Se agregan nuevas filas al dataframe de partï¿½culas
       particles <- rbind(particles,init_particles(rep(time, n_particles), sx, sy,vx,vy))
     }
   
-  #Se ordena la partícula en base a un identificador
+  #Se ordena la partï¿½cula en base a un identificador
   #particles = particles[order(particles$particle), ]
   return (particles)
 } 
@@ -183,7 +186,7 @@ twobox = function(dt, time_max, particles){
     sy <- sy + vy*dt
     for (i in 1:length(sx)){
       for(j in 1:length(sx)){
-        # Si dos partículas diferentes se encuentran en el radio una de otra
+        # Si dos partï¿½culas diferentes se encuentran en el radio una de otra
         if ((abs(sx[j]-sx[i]) <= 2*r) && (abs(sy[j]-sy[i]) <= 2*r) && j!=i){
           print("Choque")
           
@@ -203,7 +206,7 @@ twobox = function(dt, time_max, particles){
           auxX = vx[i]
           auxY = vy[i]
           
-          # Se asume un choque perfectamente elástico
+          # Se asume un choque perfectamente elï¿½stico
           # por tanto se intecambian las velocidades
           vcmx = (vx[i] + vx[j])/2
           vcmy = (vy[i] + vy[j])/2
@@ -219,8 +222,8 @@ twobox = function(dt, time_max, particles){
           #vx[j] = auxX
           #vy[j] = auxY
           
-          # Se regresa mueven las partículas de forma que no queden superpuestas
-          # Se realiza la operación vx[i]/abs(vx[i]) con el fin de calcular la dirección del movimiento
+          # Se regresa mueven las partï¿½culas de forma que no queden superpuestas
+          # Se realiza la operaciï¿½n vx[i]/abs(vx[i]) con el fin de calcular la direcciï¿½n del movimiento
           sx[i] = sx[j]  + 2*r*(vx[i]/abs(vx[i]))
           sx[j] = auxPosX + 2*r*(vx[j]/abs(vx[j]))
           
@@ -229,9 +232,9 @@ twobox = function(dt, time_max, particles){
         }
       }
       
-      # Se buscan partículas que se encuentren en uno de los bordes
-      # En caso de encontrarse en alguno de ellos, se invierte la dirección de su movimiento
-      # (cambiando el signo a la velocidad), y se pone en una posición en la que no se
+      # Se buscan partï¿½culas que se encuentren en uno de los bordes
+      # En caso de encontrarse en alguno de ellos, se invierte la direcciï¿½n de su movimiento
+      # (cambiando el signo a la velocidad), y se pone en una posiciï¿½n en la que no se
       # superponga
       if(pos[i]==0){
         if(sx[i] >= tam_box-(2*r)){
@@ -295,11 +298,11 @@ twobox = function(dt, time_max, particles){
       }
     }
     
-    #Se agregan nuevas filas al dataframe de partículas
+    #Se agregan nuevas filas al dataframe de partï¿½culas
     particles <- rbind(particles,init_particles(rep(time, n_particles), sx, sy,vx,vy))
   }
   
-  #Se ordena la partícula en base a un identificador
+  #Se ordena la partï¿½cula en base a un identificador
   #particles = particles[order(particles$particle), ]
   return (particles)
 }
@@ -310,7 +313,7 @@ speeds = init_speeds(vx,vy)
 particles <- box_n_n(dt,time_max,particles)
 #particles <- twobox(dt,time_max,particles)
 
-# Se realiza la gráfica con los datos del dataframe, utilizando cada intervalo de tiempo
+# Se realiza la grï¿½fica con los datos del dataframe, utilizando cada intervalo de tiempo
 anim <- ggplot(particles, aes(x=unlist(particles["Sx"]),y=unlist(particles["Sy"])))+ 
   geom_point(aes(colour = factor(particle)),size=r,alpha = 0.7, show.legend = F) + theme_bw()+
   scale_y_continuous(expand = c(0,0)) + scale_x_continuous(expand = c(0,0))+
@@ -328,24 +331,31 @@ anim <- ggplot(particles, aes(x=unlist(particles["Sx"]),y=unlist(particles["Sy"]
   #geom_line(data=data.frame("x"=c(tam_box*1.2,tam_box*1.2),"y"=c(((2/3)*tam_box),(5/6)*tam_box)),aes_string(x="x",y="y"),linetype="dashed")+
   #geom_line(data=data.frame("x"=c(tam_box*1.2,tam_box*(1.2+(4/6))),"y"=c((1/6)*tam_box),(1/6)*tam_box),aes_string(x="x",y="y"),linetype="dashed")+
   #geom_line(data=data.frame("x"=c(tam_box*1.2,tam_box*(1.2+(4/6))),"y"=c((5/6)*tam_box),(5/6)*tam_box),aes_string(x="x",y="y"),linetype="dashed")
-# Se generan n imágenes correspondientes a los movimientos
+# Se generan n imï¿½genes correspondientes a los movimientos
 
-# A partir de estas imágenes se genera la animación
+# A partir de estas imï¿½genes se genera la animaciï¿½n
 animate(anim, height = 500, width = 600, fps = 30, duration = 20,
         end_pause = 60, res = 100 ,renderer = gifski_renderer())
 
-# Se exporta la animación cómo un gif
+# Se exporta la animaciï¿½n cï¿½mo un gif
 anim_save("graph.gif")
 
 totalvel <- sqrt((particles$Vx^2)+(particles$Vy^2))
+totalvel <- tail( totalvel, n_particles)
+
 
 library("MASS")
-M1 = 0.002016
-k_botlz <- 1.380649E-23
+
 #k_botlz <- 8.617333262e-5
-truehist(totalvel,nbins = 100)
+
+truehist(totalvel*(escalaT/escalaR),nbins = 100)
 x_grafica <- seq(min(totalvel),max(totalvel),by=0.1)
-y_grafica <- (4*pi*(x_grafica^2))*((m/(2*pi*k_botlz*Temp))^1.5)*(exp((-m*(x_grafica^2))/(2*k_botlz*T)))*2000
+
+sigma <- sqrt( k_botlz*T / m  )
+
+y_grafica <-  ( x_grafica / (sigma^2) )* exp( - (  x_grafica^2 / (2*sigma^2) ) ) 
+
 #y_grafica <- sqrt((M/(2*pi*k_botlz)))*(exp((-M*(x_grafica^2))/(2*k_botlz*T)))
+
 lines(x_grafica,y_grafica,type="l",col="red")
 print(totalvel)
