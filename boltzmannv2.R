@@ -69,7 +69,10 @@ v_max <-  sqrt(  2*k_botlz*Temp / m  )*(escalaR/escalaT)
 
 #Generar de manera aleator�a las velocidades iniciales
 thetha <- runif(n_particles) * 2  * pi
-v_real <- abs( rnorm(n_particles, mean=v_max) )
+
+# v_real <- abs( rnorm(n_particles, mean=v_max) )
+
+v_real <- runif(n_particles )*2*v_max
 
 vx <- cos(thetha) * v_real 
 vy <- sin(thetha) * v_real
@@ -97,48 +100,33 @@ box_n_n = function(dt, time_max, particles){
       for (i in 1:length(sx)){
         for(j in 1:length(sx)){
           # Si dos part�culas diferentes se encuentran en el radio una de otra
-          if ((abs(sx[j]-sx[i]) <= 2*r) && (abs(sy[j]-sy[i]) <= 2*r) && j!=i){
+          if ((abs(sx[j]-sx[i]) <= 2*r) && (abs(sy[j]-sy[i]) <= 2*r) && i < j){
             print("Choque")
-            
             rel_posx = sx[i] - sx[j]
             rel_posy = sy[i] - sy[j]
             
             rel_velx = vx[i] - vx[j]
             rel_vely = vy[i] - vy[j]
             
-            v_rel = rel_posx*rel_velx + rel_posy*rel_vely
-            r_rel = (rel_posx^2)+(rel_posy^2)
-            # Se almacenan las posiciones en variables auxiliares
-            auxPosY = sy[i]
-            auxPosX = sx[i]  
             
-            # Se almacenan las velocidades en variables auxiliares
-            auxX = vx[i]
-            auxY = vy[i]
+            r_rel = (rel_posx^2)+(rel_posy^2)
+            v_rel = rel_posx*rel_velx + rel_posy*rel_vely
             
             # Se asume un choque perfectamente el�stico
             # por tanto se intecambian las velocidades
             vcmx = (vx[i] + vx[j])/2
             vcmy = (vy[i] + vy[j])/2
             
-            vx[i] = vx[i] - (v_rel/r_rel)*(sx[i]-sx[j])
-            vy[i] = vy[i] - (v_rel/r_rel)*(sy[i]-sy[j])
-            #vx[i] = vx[j]
-            #vy[i] = vy[j]
+            change_x = 2*rel_posx*v_rel / r_rel - rel_velx
+            change_y = 2*rel_posy*v_rel / r_rel - rel_vely
             
-            vx[j] = vx[j] - (-v_rel/-r_rel)*(sx[j]-sx[i])
-            vy[j] = vy[j] - (-v_rel/-r_rel)*(sy[j]-sy[i])
             
-            #vx[j] = auxX
-            #vy[j] = auxY
+            vx[i] = vcmx - change_x/2
+            vy[i] = vcmy - change_y/2
             
-            # Se regresa mueven las part�culas de forma que no queden superpuestas
-            # Se realiza la operaci�n vx[i]/abs(vx[i]) con el fin de calcular la direcci�n del movimiento
-            sx[i] = sx[j]  + 2*r*(vx[i]/abs(vx[i]))
-            sx[j] = auxPosX + 2*r*(vx[j]/abs(vx[j]))
-            
-            sy[i] = sy[j]  + 2*r*(vy[i]/abs(vy[i]))
-            sy[j] = auxPosY + 2*r*(vy[j]/abs(vy[j]))
+            vx[j] = vcmx + change_x/2
+            vy[j] = vcmy + change_y/2
+
           }
         }
         
@@ -187,7 +175,7 @@ twobox = function(dt, time_max, particles){
     for (i in 1:length(sx)){
       for(j in 1:length(sx)){
         # Si dos part�culas diferentes se encuentran en el radio una de otra
-        if ((abs(sx[j]-sx[i]) <= 2*r) && (abs(sy[j]-sy[i]) <= 2*r) && j!=i){
+        if ((abs(sx[j]-sx[i]) <= 2*r) && (abs(sy[j]-sy[i]) <= 2*r) && i < j ){
           print("Choque")
           
           rel_posx = sx[i] - sx[j]
@@ -196,8 +184,8 @@ twobox = function(dt, time_max, particles){
           rel_velx = vx[i] - vx[j]
           rel_vely = vy[i] - vy[j]
           
-          v_rel = rel_posx*rel_velx + rel_posy*rel_vely
           r_rel = (rel_posx^2)+(rel_posy^2)
+          v_rel = rel_posx*rel_velx + rel_posy*rel_vely
           # Se almacenan las posiciones en variables auxiliares
           auxPosY = sy[i]
           auxPosX = sx[i]  
@@ -211,24 +199,22 @@ twobox = function(dt, time_max, particles){
           vcmx = (vx[i] + vx[j])/2
           vcmy = (vy[i] + vy[j])/2
           
-          vx[i] = vx[i] - (v_rel/r_rel)*(sx[i]-sx[j])
-          vy[i] = vy[i] - (v_rel/r_rel)*(sy[i]-sy[j])
-          #vx[i] = vx[j]
-          #vy[i] = vy[j]
+          change_x = (v_rel/r_rel)*(sx[i]-sx[j])
+          change_y = (v_rel/r_rel)*(sy[i]-sy[j])
           
-          vx[j] = vx[j] - (-v_rel/-r_rel)*(sx[j]-sx[i])
-          vy[j] = vy[j] - (-v_rel/-r_rel)*(sy[j]-sy[i])
-          
-          #vx[j] = auxX
-          #vy[j] = auxY
+          vx[i] = vx[i] - change_x
+          vy[i] = vy[i] - change_y
+
+          vx[j] = vx[j] + change_x
+          vy[j] = vy[j] + change_y
           
           # Se regresa mueven las part�culas de forma que no queden superpuestas
           # Se realiza la operaci�n vx[i]/abs(vx[i]) con el fin de calcular la direcci�n del movimiento
-          sx[i] = sx[j]  + 2*r*(vx[i]/abs(vx[i]))
-          sx[j] = auxPosX + 2*r*(vx[j]/abs(vx[j]))
+          # sx[i] = sx[j]  + 2*r*(vx[i]/abs(vx[i]))
+          # sx[j] = auxPosX + 2*r*(vx[j]/abs(vx[j]))
           
-          sy[i] = sy[j]  + 2*r*(vy[i]/abs(vy[i]))
-          sy[j] = auxPosY + 2*r*(vy[j]/abs(vy[j]))
+          # sy[i] = sy[j]  + 2*r*(vy[i]/abs(vy[i]))
+          # sy[j] = auxPosY + 2*r*(vy[j]/abs(vy[j]))
         }
       }
       
@@ -348,10 +334,10 @@ library("MASS")
 
 #k_botlz <- 8.617333262e-5
 
-truehist(totalvel*(escalaT/escalaR),nbins = 100)
-x_grafica <- seq(min(totalvel),max(totalvel),by=0.1)
+truehist(totalvel*(escalaT/escalaR),nbins = 100) 
+x_grafica <- seq(min(totalvel*(escalaT/escalaR)),max(totalvel*(escalaT/escalaR)),by=0.1)
 
-sigma <- sqrt( k_botlz*T / m  )
+sigma <- sqrt( k_botlz*Temp / m  )
 
 y_grafica <-  ( x_grafica / (sigma^2) )* exp( - (  x_grafica^2 / (2*sigma^2) ) ) 
 
