@@ -112,8 +112,8 @@ box_n_n = function(dt, time_max, particles){
             r_rel = (rel_posx^2)+(rel_posy^2)
             v_rel = rel_posx*rel_velx + rel_posy*rel_vely
             
-            # Se asume un choque perfectamente el�stico
-            # por tanto se intecambian las velocidades
+            # Se asume un choque perfectamente elastico
+            # por tanto se intercambian las velocidades
             vcmx = (vx[i] + vx[j])/2
             vcmy = (vy[i] + vy[j])/2
             
@@ -177,44 +177,30 @@ twobox = function(dt, time_max, particles){
         # Si dos part�culas diferentes se encuentran en el radio una de otra
         if ((abs(sx[j]-sx[i]) <= 2*r) && (abs(sy[j]-sy[i]) <= 2*r) && i < j ){
           print("Choque")
-          
           rel_posx = sx[i] - sx[j]
           rel_posy = sy[i] - sy[j]
           
           rel_velx = vx[i] - vx[j]
           rel_vely = vy[i] - vy[j]
           
+          
           r_rel = (rel_posx^2)+(rel_posy^2)
           v_rel = rel_posx*rel_velx + rel_posy*rel_vely
-          # Se almacenan las posiciones en variables auxiliares
-          auxPosY = sy[i]
-          auxPosX = sx[i]  
-          
-          # Se almacenan las velocidades en variables auxiliares
-          auxX = vx[i]
-          auxY = vy[i]
           
           # Se asume un choque perfectamente el�stico
           # por tanto se intecambian las velocidades
           vcmx = (vx[i] + vx[j])/2
           vcmy = (vy[i] + vy[j])/2
           
-          change_x = (v_rel/r_rel)*(sx[i]-sx[j])
-          change_y = (v_rel/r_rel)*(sy[i]-sy[j])
+          change_x = 2*rel_posx*v_rel / r_rel - rel_velx
+          change_y = 2*rel_posy*v_rel / r_rel - rel_vely
           
-          vx[i] = vx[i] - change_x
-          vy[i] = vy[i] - change_y
-
-          vx[j] = vx[j] + change_x
-          vy[j] = vy[j] + change_y
           
-          # Se regresa mueven las part�culas de forma que no queden superpuestas
-          # Se realiza la operaci�n vx[i]/abs(vx[i]) con el fin de calcular la direcci�n del movimiento
-          # sx[i] = sx[j]  + 2*r*(vx[i]/abs(vx[i]))
-          # sx[j] = auxPosX + 2*r*(vx[j]/abs(vx[j]))
+          vx[i] = vcmx - change_x/2
+          vy[i] = vcmy - change_y/2
           
-          # sy[i] = sy[j]  + 2*r*(vy[i]/abs(vy[i]))
-          # sy[j] = auxPosY + 2*r*(vy[j]/abs(vy[j]))
+          vx[j] = vcmx + change_x/2
+          vy[j] = vcmy + change_y/2
         }
       }
       
@@ -296,8 +282,8 @@ twobox = function(dt, time_max, particles){
 
 particles = init_particles(rep(0, n_particles), sx,sy,vx,vy)
 speeds = init_speeds(vx,vy)
-particles <- box_n_n(dt,time_max,particles)
-#particles <- twobox(dt,time_max,particles)
+# particles <- box_n_n(dt,time_max,particles)
+particles <- twobox(dt,time_max,particles)
 
 # Se realiza la gr�fica con los datos del dataframe, utilizando cada intervalo de tiempo
 anim <- ggplot(particles, aes(x=unlist(particles["Sx"]),y=unlist(particles["Sy"])))+ 
