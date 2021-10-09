@@ -283,7 +283,7 @@ twobox = function(dt, time_max, particles){
 particles = init_particles(rep(0, n_particles), sx,sy,vx,vy)
 speeds = init_speeds(vx,vy)
 # particles <- box_n_n(dt,time_max,particles)
-particles <- twobox(dt,time_max,particles)
+particles <- box_n_n(dt,time_max,particles)
 
 # Se realiza la gr�fica con los datos del dataframe, utilizando cada intervalo de tiempo
 anim <- ggplot(particles, aes(x=unlist(particles["Sx"]),y=unlist(particles["Sy"])))+ 
@@ -331,3 +331,5 @@ y_grafica <-  ( x_grafica / (sigma^2) )* exp( - (  x_grafica^2 / (2*sigma^2) ) )
 
 lines(x_grafica,y_grafica,type="l",col="red")
 print(totalvel)
+
+write.csv(particles, "/home/felipe/Documentos/Programming/R/Simulación/Trabajo_Final/Trabajo_final/dataset/particles_n_n.csv")
