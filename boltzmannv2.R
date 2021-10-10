@@ -17,12 +17,7 @@ init_particles = function(time,sx,sy,vx,vy){
 #           vx -> Vector de velocidades en x
 #           vy -> Vector de velocidades en y
 #Return:
-#           speeds <- dataframe de velocidades
-init_speeds = function(vx,vy){
-  speeds = data.frame(c(seq(1,n_particles,by=1)),sx, sy)
-  names(speeds) <- c('particle','Vx', 'Vy')
-  return(speeds)
-}
+
 
 # Charge libraries:
 library(ggplot2)
@@ -281,55 +276,17 @@ twobox = function(dt, time_max, particles){
 
 
 particles = init_particles(rep(0, n_particles), sx,sy,vx,vy)
+#crear el dataset
+
 speeds = init_speeds(vx,vy)
 # particles <- box_n_n(dt,time_max,particles)
 particles <- box_n_n(dt,time_max,particles)
-
-# Se realiza la gr�fica con los datos del dataframe, utilizando cada intervalo de tiempo
-anim <- ggplot(particles, aes(x=unlist(particles["Sx"]),y=unlist(particles["Sy"])))+ 
-  geom_point(aes(colour = factor(particle)),size=r,alpha = 0.7, show.legend = F) + theme_bw()+
-  scale_y_continuous(expand = c(0,0)) + scale_x_continuous(expand = c(0,0))+
-  labs(title = 'Time: {frame_time}', x = 'X', y = 'Y') +
-  transition_time(unlist(particles["time"])) + 
-  geom_line(data=data.frame("x"=c(0,0),"y"=c(0,tam_box)),aes_string(x="x",y="y"),linetype="dashed")+
-  geom_line(data=data.frame("x"=c(0,tam_box),"y"=c(tam_box,tam_box)),aes_string(x="x",y="y"),linetype="dashed")+
-  geom_line(data=data.frame("x"=c(0,tam_box),"y"=c(0,0)),aes_string(x="x",y="y"),linetype="dashed")+
-  geom_line(data=data.frame("x"=c(tam_box,tam_box),"y"=c(0,tam_box)),aes_string(x="x",y="y"),linetype="dashed")
-  #geom_line(data=data.frame("x"=c(tam_box,tam_box),"y"=c((2/3)*tam_box,tam_box)),aes_string(x="x",y="y"),linetype="dashed")+
-  #geom_line(data=data.frame("x"=c(tam_box,tam_box),"y"=c(0,(1/3)*tam_box)),aes_string(x="x",y="y"),linetype="dashed")+
-  #geom_line(data=data.frame("x"=c(tam_box,tam_box*1.2),"y"=c((1/3)*tam_box),(1/3)*tam_box),aes_string(x="x",y="y"),linetype="dashed")+
-  #geom_line(data=data.frame("x"=c(tam_box,tam_box*1.2),"y"=c((2/3)*tam_box),(2/3)*tam_box),aes_string(x="x",y="y"),linetype="dashed")+
-  #geom_line(data=data.frame("x"=c(tam_box*1.2,tam_box*1.2),"y"=c(((1/6)*tam_box),(1/3)*tam_box)),aes_string(x="x",y="y"),linetype="dashed")+
-  #geom_line(data=data.frame("x"=c(tam_box*1.2,tam_box*1.2),"y"=c(((2/3)*tam_box),(5/6)*tam_box)),aes_string(x="x",y="y"),linetype="dashed")+
-  #geom_line(data=data.frame("x"=c(tam_box*1.2,tam_box*(1.2+(4/6))),"y"=c((1/6)*tam_box),(1/6)*tam_box),aes_string(x="x",y="y"),linetype="dashed")+
-  #geom_line(data=data.frame("x"=c(tam_box*1.2,tam_box*(1.2+(4/6))),"y"=c((5/6)*tam_box),(5/6)*tam_box),aes_string(x="x",y="y"),linetype="dashed")
-# Se generan n im�genes correspondientes a los movimientos
-
-# A partir de estas im�genes se genera la animaci�n
-animate(anim, height = 500, width = 600, fps = 30, duration = 20,
-        end_pause = 60, res = 100 ,renderer = gifski_renderer())
-
-# Se exporta la animaci�n c�mo un gif
-anim_save("graph.gif")
-
-totalvel <- sqrt((particles$Vx^2)+(particles$Vy^2))
-totalvel <- tail( totalvel, n_particles)
-
-
-library("MASS")
-
-#k_botlz <- 8.617333262e-5
-
-truehist(totalvel*(escalaT/escalaR),nbins = 100) 
-x_grafica <- seq(min(totalvel*(escalaT/escalaR)),max(totalvel*(escalaT/escalaR)),by=0.1)
-
-sigma <- sqrt( k_botlz*Temp / m  )
-
-y_grafica <-  ( x_grafica / (sigma^2) )* exp( - (  x_grafica^2 / (2*sigma^2) ) ) 
-
-#y_grafica <- sqrt((M/(2*pi*k_botlz)))*(exp((-M*(x_grafica^2))/(2*k_botlz*T)))
-
-lines(x_grafica,y_grafica,type="l",col="red")
-print(totalvel)
-
 write.csv(particles, "/home/felipe/Documentos/Programming/R/Simulación/Trabajo_Final/Trabajo_final/dataset/particles_n_n.csv")
+
+
+
+
+
+
+
+
