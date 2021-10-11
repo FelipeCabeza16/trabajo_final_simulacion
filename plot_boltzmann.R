@@ -23,7 +23,7 @@ par = read.csv(paste(directory,dataset1,sep = ""))
 n_par = 1000
 escalaR <- 1e7
 escalaT <- 1e9
-mu <- 1.660e-24
+mu <- 1.660e-24 # 
 atomic_mass <- 1.00784
 m <- mu*atomic_mass
 k_botlz <- 1.380649e-23
@@ -86,16 +86,18 @@ teorical <- function(par){
   data <- data.frame(cbind(x_graf,y_graf))
   
   
-  graph <- ggplot(par, aes((sqrt((par$Vx^2)+(par$Vy^2)))*(escalaT/escalaR))) + 
+  graph <- ggplot(par, aes((sqrt((Vx^2)+(Vy^2)))*(escalaT/escalaR))) + 
     geom_histogram(col = "black",fill = "purple", aes(y=..density..)) + 
     view_follow(fixed_x = TRUE, fixed_y = TRUE) + transition_time(par$time)  + 
     geom_line(aes(x=x_graf,y=y_graf),data=data,col = "blue",size=1) + 
+    geom_freqpoly(aes(x=(sqrt((Vx^2)+(Vy^2)))*(escalaT/escalaR), y=..density..),data=par,col = "red",size=1)+
     ggtitle("Simulacion vs solucion analitica", ) + 
-    labs(x = "Velocidad [m/s]", y = "f(v)", col="Solucion analitica",  caption ="Time: {round(frame_time,1)}") +
+    labs(x = "Velocidad [m/s]", y = "f(v)", col="Solucion analitica",  caption ="Time: {round(frame_time,1)} [s]") +
+    scale_color_manual(labels = c("Teorical", "Density Simulation"), values = c("blue", "red"))+
     #scale_color_manual(labels = c("f(v)"), values = c("red"))
     theme(axis.title.y=element_blank(), axis.text.y=element_blank(), axis.ticks.y=element_blank(), 
-          legend.title = element_blank(), legend.text = element_text(size = 14),
-          plot.title = element_text(size = 12, face = "bold"), legend.position = "none")
+          legend.title = element_blank(), legend.text = element_text(size = 14),legend.position = "right",
+          plot.title = element_text(size = 12, face = "bold"))
   return (graph)
 }
 
@@ -134,4 +136,4 @@ for(i in 2:length(a_mgif)){
 }
 
 new_gif
-anim_save(".//twoBox.gif", animation = new_gif)
+anim_save("twoBox.gif", animation = new_gif)
