@@ -70,11 +70,10 @@ legend(0, 1, legend=c("expected", "observed") , col=c("blue", "red") , lty=1:2, 
 
 d <- density(totalv, from = min_x, to = max_x, adjust = 2, kernel = "gaussian")
 
-truehist(totalv, nbins=number_bins, main="Density Distribution", col="white")
-lines(ejex, teorical(ejex), type="l", col="blue", add=TRUE)
-lines(d$x, d$y, type="l", col="red", add=TRUE)
-
-legend(170, 0.015, legend=c("expected", "observed") , col=c("blue", "red") , lty=1:2, cex=0.8)
+# truehist(totalv, nbins=number_bins, main="Density Distribution", col="white")
+# lines(ejex, teorical(ejex), type="l", col="blue", add=TRUE)
+# lines(d$x, d$y, type="l", col="red", add=TRUE)
+# legend(600, 0.0025, legend=c("expected", "observed") , col=c("blue", "red") , lty=1:2, cex=0.8)
 
 ks.test(totalv, pteorical)
 

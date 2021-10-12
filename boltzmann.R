@@ -60,7 +60,7 @@
   
   
   #Velocidad máxima
-  v_max <-  sqrt( 2*k_botlz*Temp / m  )*(escalaR/escalaT)*1.6
+  v_max <-  sqrt( 2*k_botlz*Temp / m  )*(escalaR/escalaT)*1.7
   
   #Generar de manera aleator�a las velocidades iniciales
   thetha <- runif(n_particles) * 2  * pi
