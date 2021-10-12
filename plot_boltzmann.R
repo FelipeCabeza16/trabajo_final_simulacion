@@ -7,30 +7,36 @@
 library(ggplot2)
 library(gganimate)
 library(magick)
-
+library(transformr)
 
 #cambiar la ruta absoluta por la de su sistema, chmod 777
 # y las dos simulaciones est√°n en los datasets (particles_n_n.csv) o (particles_2_box.csv)
 
 #install.packages('rstudioapi')
 directory = dirname(rstudioapi::getActiveDocumentContext()$path)
-dataset1="/dataset/particles_2_box.csv"
+dataset1="/results/twobox.csv"
 par = read.csv(paste(directory,dataset1,sep = ""))
 
 #par = read.csv(file = "/home/felipe/Documentos/Programming/R/Simulaci√≥n/Trabajo_Final/Trabajo_final/dataset/particles_n_n.csv")
 
 
 n_par = 1000
-escalaR <- 1e7
+
+
+#Atomo de Argon
+escalaR <- 5e6
 escalaT <- 1e9
-mu <- 1.660e-24 # 
-atomic_mass <- 1.00784
+
+#Se multiplica por un factor 1x10^7 por la escala de la simulaciÔøΩn
+r <- 2e-10*escalaR
+mu <- 1.660539040e-27
+atomic_mass <- 39.948  # masa atomica del Argon
 m <- mu*atomic_mass
+constR <- 8.314472
 k_botlz <- 1.380649e-23
 Temp <- 273.15
 
 tam_box <- 1
-r <- 120e-12*escalaR
 #Velocidad de la simulaci√≥n
 totalv <- sqrt((par$Vx^2)+(par$Vy^2))
 totalv <- tail( totalv, n_par)
@@ -105,12 +111,10 @@ teorical <- function(par){
 
 graph <- teorical(par)
 #Una caja NxN
-#simu <- simOneBox(par,tam_box)
+# simu <- simOneBox(par,tam_box)
 
 #Dos cajas
 simu <- simTwoBox(par,tam_box)
-
-
 
 
 #Ajustar los fps de acuerdo a los recursos de su m·quina, esta configuraciÛn fue probada
@@ -136,4 +140,4 @@ for(i in 2:length(a_mgif)){
 }
 
 new_gif
-anim_save("twoBox.gif", animation = new_gif)
+anim_save("twobox.gif", animation = new_gif)
